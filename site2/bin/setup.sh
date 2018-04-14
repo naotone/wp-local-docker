@@ -30,15 +30,19 @@ read ADMIN_EMAIL
 echo -n "Do you want a multisite installation? [y/n] "
 read MULTISITE
 
+echo -n "Database prefix(wp_)"
+read PREFIX
+
+
 # Install WordPress
 docker-compose exec --user www-data phpfpm wp core download --force
-docker-compose exec -T --user www-data phpfpm wp core config --force
+docker-compose exec -T --user www-data phpfpm wp core config --force --dbprefix="$PREFIX"
 
 if [ "y" = "$MULTISITE" ]
 then
-	ADMIN_PASSWORD=$(docker-compose exec --user www-data phpfpm wp core multisite-install --url=localhost --title="$TITLE" --admin_user="$ADMIN_USER" --admin_email="$ADMIN_EMAIL")
+	ADMIN_PASSWORD=$(docker-compose exec --user www-data phpfpm wp core multisite-install --url=site2.local --title="$TITLE" --admin_user="$ADMIN_USER" --admin_email="$ADMIN_EMAIL")
 else
-	ADMIN_PASSWORD=$(docker-compose exec --user www-data phpfpm wp core install --url=localhost --title="$TITLE" --admin_user="$ADMIN_USER" --admin_email="$ADMIN_EMAIL")
+	ADMIN_PASSWORD=$(docker-compose exec --user www-data phpfpm wp core install --url=site2.local --title="$TITLE" --admin_user="$ADMIN_USER"  --admin_email="$ADMIN_EMAIL")
 fi
 
 # Adjust settings
@@ -100,4 +104,4 @@ echo "Installation done."
 echo "------------------"
 echo "Admin username: $ADMIN_USER"
 echo "$ADMIN_PASSWORD"
-open http://localhost/wp-login.php
+open https://site2.local/wp-login.php
